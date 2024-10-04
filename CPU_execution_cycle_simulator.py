@@ -1,53 +1,57 @@
-class SimpleCPU:                        # Step 1: Simulate Memory and Registers
-    def _init_(self):
- # Initialize memory with specific values
-        self. Memory = {
-            940: 5,   # Example values in memory
-            941: 10,  # This will be modified
-            942: 15   # Additional memory locations if needed
- }
-        self.PC = 0  # Program Counter
-        self.AC = 0  # Accumulator
-        self.IR = None  # Instruction Register
-        self.instructions = []  # To hold instructions
+memory = {
+    940: 10,
+    941: 20,
+}
 
-    def load_instruction(self, instruction):
-         self.instructions.append(instruction)          # """Load a sequence of instructions."""
+# CPU Registers
+PC = 0  
+AC = 0  
+IR = None  
 
-    def fetch(self):
-         if self.PC < len(self.instructions):           # """Fetch the next instruction based on the Program Counter."""
-            self.IR = self.instructions[self.PC]
-            self.PC += 1  # Increment the Program Counter
 
-    def execute(self):
-        opcode, address = self.IR
+instructions = [("LOAD", 940), ("ADD", 941), ("STORE", 941)]
+
+
+def load(address):
+    global AC
+    AC = memory[address]
+    print(f"LOAD: AC = {AC}")
+
+def add(address):
+    global AC
+    AC += memory[address]
+    print(f"ADD: AC = {AC}")
+
+def store(address):
+    memory[address] = AC
+    print(f"STORE: Memory[{address}] = {memory[address]}")
+
+# Simulate fetch-execute cycle
+def execute_cycle():
+    global PC, IR
+    while PC < len(instructions):
+        # Fetch phase
+        IR = instructions[PC]
+        print(f"Fetching instruction {IR} at PC = {PC}")
+        
+        # Execute phase
+        opcode, address = IR
         if opcode == "LOAD":
-            self.AC = self.memory[address]
-        elif opcode == "STORE":
-            self.memory[address] = self.AC
+            load(address)
         elif opcode == "ADD":
-            self.AC += self.memory[address]
-        else:
-            print(f"Unknown opcode: {opcode}")
+            add(address)
+        elif opcode == "STORE":
+            store(address)
+        
+        # Move to the next instruction
+        PC += 1
+        # Print the state of registers and memory
+        print(f"PC = {PC}, AC = {AC}, IR = {IR}")
+        print(f"Memory: {memory}\n")
 
-    def print_state(self):
-         print(f"PC: {self.PC - 1}, IR: {self.IR}, AC: {self.AC}")      # """Print the current state of the CPU."""
-         print(f"Memory: {self.memory}")
+# Initialize registers
+PC = 0
+AC = 0
 
-    def execute_cycle(self):
-        self.fetch()                       # """Run the fetch-execute cycle."""
-        self.print_state()  # Print before execution
-        self.execute()
-        self.print_state()  # Print after execution
-
-cpu = SimpleCPU()           # Step 2: Initialize Memory and Registers
-
- # Step 3: Simulate the Given Instruction Sequence
-cpu.load_instruction(("LOAD", 940))  # Load value from memory address 940 into AC
-cpu.load_instruction(("ADD", 941))    # Add value from memory address 941 to AC
-cpu.load_instruction(("STORE", 941))  # Store the result back in memory address 941
-
- # Step 4: Trace the Execution
- # Execute the instruction cycle for each instruction
-for _ in range(len(cpu.instructions)):
-    cpu.execute_cycle()
+# Run the CPU simulation
+execute_cycle()
